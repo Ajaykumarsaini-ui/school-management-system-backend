@@ -37,6 +37,8 @@ export const addSchool = async (req, res) => {
     await newSchool.save();
     res.status(201).json({ message: "School registered", school: newSchool });
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ message: error.message });
   }
 };
@@ -46,6 +48,7 @@ export const getSchools = async (req, res) => {
     const schools = await School.find().select("school_name school_image");
     res.status(200).json(schools);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
