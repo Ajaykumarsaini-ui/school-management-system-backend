@@ -13,4 +13,4 @@ connectDB().then(() => {
 
 
 
-
+// "start": "nodemon src/Server.js --env-file=.env"
