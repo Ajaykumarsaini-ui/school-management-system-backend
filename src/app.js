@@ -23,14 +23,23 @@ dotenv.config();
 
 const app = express();
 
-// ✅ CORS setup
+// ✅ Fixed CORS Setup
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  process.env.CLIENT_URL // E.g., https://your-frontend.vercel.app
+];
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    process.env.CLIENT_URL // for production deployment like Vercel
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., mobile apps, curl, Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 }));
@@ -40,7 +49,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-// ✅ API Routes
+// ✅ Routes
 app.use("/api/school", schoolRouter());
 app.use("/api/class", classRouter());
 app.use("/api/teacher", teacherRouter());
@@ -55,7 +64,7 @@ app.use("/api/teacherleave", teacherleaveRouter());
 app.use("/api/teachermessage", teachermessageRouter());
 app.use("/api/attendence", attendenceRouter());
 
-// ✅ Error Handling
+// ✅ Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: "Something went wrong" });
