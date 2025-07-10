@@ -44,6 +44,10 @@ const teacherSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  refreshToken: {
+    type: String,
+    required: true,
+  },
 });
 
 const Teacher = mongoose.model("Teacher", teacherSchema);

@@ -27,6 +27,10 @@ const schoolSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  refreshToken: {
+    type: String,
+    required: false,
+  },
 });
 
 const School = mongoose.model("School", schoolSchema);

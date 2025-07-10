@@ -2,7 +2,7 @@ import { token } from "morgan";
 import School from "../models/school.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { generateToken } from "../utils/jwt.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 // import {
 //   generateAccessToken,
 //   generateRefreshToken,
@@ -38,7 +38,7 @@ export const addSchool = async (req, res) => {
     res.status(201).json({ message: "School registered", school: newSchool });
   } catch (error) {
     console.log(error);
-    
+
     res.status(500).json({ message: error.message });
   }
 };
@@ -64,11 +64,26 @@ export const loginSchool = async (req, res) => {
     if (!isPasswordValid)
       return res.status(401).json({ message: "Invalid password" });
 
-    const token = generateToken(school._id  , school._id, "SCHOOL");
+    const Accesstoken = generateAccessToken(school._id, school._id, "SCHOOL");
+
+    const RefreshToken = generateRefreshToken(school._id, school._id, "SCHOOL");
+    school.refreshToken = RefreshToken;
+    await school.save();
+
+
+    res.cookie("RefreshToken", RefreshToken, {
+      httpOnly: true,
+      secure: true, // set to false only in development
+      sameSite: "Strict", // or "None" if cross-site
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+
 
     res.status(200).json({
       message: "Login successful",
-      token,
+      token: Accesstoken,
       user: {
         _id: school._id,
         school_name: school.school_name,
@@ -76,7 +91,7 @@ export const loginSchool = async (req, res) => {
         owner_name: school.owner_name,
         school_image: school.school_image,
         role: "SCHOOL",
-        
+
       },
     });
   } catch (error) {

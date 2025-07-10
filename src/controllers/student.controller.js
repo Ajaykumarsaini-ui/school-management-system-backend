@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs"; // ya "bcrypt" jo aap use kar rahe ho
 import jwt from "jsonwebtoken";
 import Student from "../models/student.model.js";
-import { generateToken } from "../utils/jwt.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import Class from "../models/class.model.js";
 
 // Register Student
@@ -41,10 +41,10 @@ export const addStudent = async (req, res) => {
       student_name,
       student_class_id: classExists._id,
       email,
-      student_class:classExists.class_num,
+      student_class: classExists.class_num,
       age,
       gender,
-      student_image : req.file?.path,
+      student_image: req.file?.path,
       guardian_name,
       guardian_phone,
       status,
@@ -54,7 +54,7 @@ export const addStudent = async (req, res) => {
 
     await newStudent.save(); // ✅ Add this line
 
-    
+
     res
       .status(201)
       .json({ message: "Student registered", student: newStudent });
@@ -94,12 +94,26 @@ export const LoginStudent = async (req, res) => {
     }
 
     // ✅ Generate token
-    const token = generateToken(student._id, student.school  , "STUDENT");
+    const AccessToken = generateAccessToken(student._id, student.school, "STUDENT");
+
+    const RefreshToken = generateRefreshToken(student._id, student.school, "STUDENT");
+    student.refreshToken = RefreshToken;
+    await student.save();
+
+
+    res.cookie("RefreshToken", RefreshToken, {
+      httpOnly: true,
+      secure: true, // set to false only in development
+      sameSite: "Strict", // or "None" if cross-site
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
 
     // ✅ Send success response
     res.status(200).json({
       message: "Login successful",
-      token,
+      token: AccessToken,
       user: {
         _id: student._id,
         student_name: student.student_name,

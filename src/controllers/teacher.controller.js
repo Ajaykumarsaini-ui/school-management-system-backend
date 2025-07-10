@@ -3,7 +3,7 @@ import Teacher from "../models/teacher.model.js";
 import Student from "../models/student.model.js";
 import Class from "../models/class.model.js";
 import bcrypt from "bcrypt";
-import { generateToken } from "../utils/jwt.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 
 // GET ALL TEACHERS for the current school
 export const getTeachers = async (req, res) => {
@@ -82,11 +82,24 @@ export const LoginTeacher = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = generateToken(teacher._id, teacher.school, "TEACHER");
+    const AccessToken = generateAccessToken(teacher._id, teacher.school, "TEACHER");
+
+    const RefreshToken = generateRefreshToken(teacher._id, teacher.school, "TEACHER");
+    teacher.refreshToken = RefreshToken;
+    await teacher.save();
+
+
+    res.cookie("RefreshToken", RefreshToken, {
+      httpOnly: true,
+      secure: true, // set to false only in development
+      sameSite: "Strict", // or "None" if cross-site
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
     res.status(200).json({
       message: "Login successful",
-      token,
+      token: AccessToken,
       user: {
         _id: teacher._id,
         teacher_name: teacher.teacher_name,

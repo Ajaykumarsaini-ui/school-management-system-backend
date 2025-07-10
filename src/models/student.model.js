@@ -63,6 +63,11 @@ const studentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+
+  refreshToken: {
+    type: String,
+    required: false,
+  },
 });
 
 studentSchema.plugin(mongoosePaginate);

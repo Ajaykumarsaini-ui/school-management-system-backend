@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 // Import Routers
 import schoolRouter from "./routes/school.router.js";
@@ -17,6 +18,7 @@ import studentleaveRouter from "./routes/studentleave.routes.js";
 import teacherleaveRouter from "./routes/teacherleave.routes.js";
 import teachermessageRouter from "./routes/teachermessages.route.js";
 import attendenceRouter from "./routes/attendence.routes.js";
+import authRouter from "./routes/auth.routes.js";
 
 // Load env variables
 dotenv.config();
@@ -28,13 +30,12 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
-  "https://schoolmanagementsystemnew.netlify.app", // ✅ your live frontend
-  process.env.CLIENT_URL
+  "https://schoolmanagementsystemnew.netlify.app",
+  process.env.CLIENT_URL,
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (e.g., mobile apps, curl, Postman)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -49,6 +50,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+app.use(cookieParser()); // ✅ Also needed for req.cookies
+
 
 // ✅ Routes
 app.use("/api/school", schoolRouter());
@@ -64,6 +67,7 @@ app.use("/api/studentleave", studentleaveRouter());
 app.use("/api/teacherleave", teacherleaveRouter());
 app.use("/api/teachermessage", teachermessageRouter());
 app.use("/api/attendence", attendenceRouter());
+app.use("/api/auth", authRouter);
 
 // ✅ Error Handling Middleware
 app.use((err, req, res, next) => {
