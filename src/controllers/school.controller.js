@@ -71,13 +71,13 @@ export const loginSchool = async (req, res) => {
     await school.save();
 
 
-    res.cookie("RefreshToken", RefreshToken, {
-      httpOnly: true,
-      secure: true, // set to false only in development
-      sameSite: "Strict", // or "None" if cross-site
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+   res.cookie("RefreshToken", RefreshToken, {
+  httpOnly: true,
+  secure: true,           // ✅ true is required for sameSite: 'None'
+  sameSite: "None",       // ✅ allow frontend-backend cross-origin cookies
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+});
 
 
 

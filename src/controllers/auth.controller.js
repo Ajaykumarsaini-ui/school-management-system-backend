@@ -59,10 +59,11 @@ export const logout = async (req, res) => {
     console.log("❌ Invalid Token:", err.message);
     res.clearCookie("RefreshToken", {
       httpOnly: true,
-      secure: false, // use false for localhost
-      sameSite: "Strict",
-      path: "/"
+      secure: true,         // must match the one used when setting cookie
+      sameSite: "None",     // must also match the original
+      path: "/",            // always include
     });
+
     return res.sendStatus(403);
   }
 
@@ -87,9 +88,9 @@ export const logout = async (req, res) => {
   // Clear cookie
   res.clearCookie("RefreshToken", {
     httpOnly: true,
-    secure: false, // for localhost
-    sameSite: "Strict",
-    path: "/"
+    secure: true,         // must match the one used when setting cookie
+    sameSite: "None",     // must also match the original
+    path: "/",            // always include
   });
 
   return res.sendStatus(204);
