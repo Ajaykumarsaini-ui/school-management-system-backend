@@ -46,7 +46,7 @@ const teacherSchema = new mongoose.Schema({
   },
   refreshToken: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 
